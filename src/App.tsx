@@ -4,8 +4,10 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Instagram } from 'lucide-react';
 import avatar from '@/assets/avatar.svg';
 import { Progress } from './components/ui/progress';
-import { useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { Button } from './components/ui/button';
+import { Calendar } from './components/ui/calendar';
+import { ScrollArea } from './components/ui/scroll-area';
 
 type barberType = {
   name: string
@@ -57,28 +59,28 @@ const barber: barberType = {
   schedule: [
     {
       day: 'Monday',
-      open: '08:00',
-      close: '18:00'
+      open: 8,
+      close: 18
     },
     {
       day: 'Tuesday',
-      open: '08:00',
-      close: '18:00'
+      open: 8,
+      close: 18
     },
     {
       day: 'Wednesday',
-      open: '08:00',
-      close: '18:00'
+      open: 8,
+      close: 18
     },
     {
       day: 'Thursday',
-      open: '08:00',
-      close: '18:00'
+      open: 8,
+      close: 18
     },
     {
       day: 'Friday',
-      open: '08:00',
-      close: '18:00'
+      open: 8,
+      close: 18
     },
   ],
   location: {
@@ -90,12 +92,64 @@ const barber: barberType = {
   }
 }
 
+const sectionClasses = 'w-full min-h-full h-full flex absolute top-0 md:top-[132px] left-[100vw] z-20 bg-background shrink-0 transition-all'
+
+type day = {
+  day: string;
+  open: number;
+  close: number;
+}
+
 function App() {
   const datePage = useRef<HTMLElement>(null);
   const infoPage = useRef<HTMLElement>(null);
   const donePage = useRef<HTMLElement>(null);
 
   const [selectedService, setSelectedService] = useState('');
+  const [date, setDate] = useState<Date | undefined>(undefined)
+  const [time, setTime] = useState('');
+
+  const dateInfo = useMemo(() => {
+    return {
+      selected: {
+        dayOfWeek: date?.toLocaleDateString('en-US', { weekday: 'long' }),
+        dayOfMonth: date?.toLocaleDateString('en-US', { day: 'numeric' }),
+        month: date?.toLocaleDateString('en-US', { month: 'long' }),
+        year: date?.toLocaleDateString('en-US', { year: 'numeric' })
+      },
+      hours: () => {
+        let selectedDay = date?.toLocaleDateString('en-US', { weekday: 'long' });
+        let hours: day | undefined = barber.schedule.find((day: any) => day.day === selectedDay) as day;
+
+        if (!hours) return;
+
+        let openHours = [];
+        for (let i = hours.open; i < hours.close; i++) {
+          let stringOne = ""
+          let stringTwo = ""
+
+          if (i < 10) {
+            stringOne += `0${i}:00 AM`
+            stringTwo += `0${i}:30 AM`
+          } else if (i < 12) {
+            stringOne += `${i}:00 AM`
+            stringTwo += `${i}:30 AM`
+          } else if (i === 12) {
+            stringOne += `12:00 PM`
+            stringTwo += `12:30 PM`
+          } else {
+            stringOne += `0${i - 12}:00 PM`
+            stringTwo += `0${i - 12}:30 PM`
+          }
+          
+          openHours.push(stringOne, stringTwo)
+        }
+
+        return openHours
+      }
+    }
+  }, [date])
+
 
 
   return (
@@ -109,9 +163,9 @@ function App() {
           </a>
         </div>
       </header>
-      <main className='container flex md:flex-row relative overflow-hidden'>
-        <section className='flex items-center justify-between py-8 flex-col w-full h-full relative top-0 left-0 bg-background shrink-0'>
-          <div className='pb-8 px-8 mb-8 flex items-center justify-start border-b-2 gap-4 w-screen'>
+      <main className='container max-h-screen h-[calc(100vh - 66px)] md:h-screen p-b-8 flex md:flex-row relative overflow-hidden'>
+        <section className='flex items-center justify-start py-8 flex-col w-full h-full relative top-0 left-0 bg-background shrink-0'>
+          <div className='pb-8 px-8 mb-8 flex items-center justify-start border-b-2 gap-4 w-screen md:sticky md:top-0 md:z-[100]'>
             <img src={barber.image} alt={barber.name} className='rounded-full border-2 h-1/3 w-1/3 md:w-16 md:h-16' />
             
             <div className='flex-1'>
@@ -160,7 +214,7 @@ function App() {
             ))}
           </div>
         </section>
-        <section ref={datePage} className='w-full h-full flex absolute top-0 left-[100vw] z-20 bg-background shrink-0 transition-all opacity-0'>
+        <section ref={datePage} className={`${sectionClasses}`}>
           <div className='container px-4 flex flex-col'>
             <div className='flex items-center justify-between py-4'>
               <Button className='bg-transparent text-foreground hover:bg-transparent' 
@@ -174,11 +228,75 @@ function App() {
                 
                   page.classList.add('opacity-0');
                   setSelectedService('');
+                  setDate(undefined);
+                  setTime('');
                 }}  
               >
                 <ChevronLeft size={32}/>
               </Button>
               <span className='text-2xl font-semibold flex-1'>Date & Time</span>
+              <BookingPolicy/>
+            </div>
+
+            <Progress value={25} className='z-100'/>
+
+            <span className='w-full text-center py-4 my-4 bg-input/50 text-2xl font-semibold'>{selectedService}</span>
+          
+
+            <Calendar 
+              mode='single'
+              selected={date}
+              onSelect={setDate}
+              className='w-full'
+            />
+
+            {dateInfo.hours() && (
+              <span className='w-full text-center'>
+                Book on {dateInfo.selected.dayOfWeek}, {dateInfo.selected.month} {dateInfo.selected.dayOfMonth}, {dateInfo.selected.year}
+              </span>
+            )} 
+
+            {dateInfo.hours() && (
+              // Find the day in the schedule
+              <div className='overflow-auto h-full flex flex-col gap-3 mb-0 mt-4'>
+                {dateInfo.hours() && dateInfo.hours()?.map((hour, index) => (
+                  <Button className='w-full' 
+                    key={`time-${index}`}
+                    onClick={() => {
+                      setTime(hour);
+                      let page = infoPage.current;
+
+                      if (!page) return
+                      page.classList.remove('left-[100vw]');
+                      page.classList.add('left-0');
+
+                      page.classList.remove('opacity-0');
+                    }}
+                  >{hour}</Button>
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
+        <section className={`${sectionClasses}`} ref={infoPage}>
+          <div className='container px-4 flex flex-col'>
+            <div className='flex items-center justify-between py-4'>
+              <Button className='bg-transparent text-foreground hover:bg-transparent' 
+                size='icon'
+                variant='ghost'
+                onClick={() => {
+                  let page = infoPage.current;
+                  if (!page) return
+                  page.classList.add('left-[100vw]');
+                  page.classList.remove('left-0');
+                
+                  page.classList.add('opacity-0');
+                  setSelectedService('');
+                }}  
+              >
+                <ChevronLeft size={32}/>
+              </Button>
+              <span className='text-2xl font-semibold flex-1'>Your information</span>
               <BookingPolicy/>
             </div>
 
@@ -205,5 +323,8 @@ const BookingPolicy = () => (
     </DialogContent>
   </Dialog>
 )
+
+
+
 
 export default App
