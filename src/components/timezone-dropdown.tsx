@@ -32,7 +32,7 @@ const timezones = [
   { value: '(GMT+12:00)/Auckland', label: '(GMT+12:00) Auckland' },
 ];
 
-function Timezone() {
+export function Timezone() {
   const [open, setOpen] = useState(false)
   const [value, setValue] = useState("(GMT-05:00)/Eastern/Time/(US/&/Canada)")
 
