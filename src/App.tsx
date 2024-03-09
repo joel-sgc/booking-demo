@@ -169,7 +169,7 @@ function App() {
         <div className='container py-2 flex items-center justify-between border-b-2 gap-4 md:hidden'>
           <h2 className='font-semibold text-2xl py-2'>Book Apointment</h2>
 
-          <a href={barber.instagram} target='_blank'>
+          <a href={barber.instagram} target='_blank' aria-label='Check out my instagram page!'>
             <Instagram size={32} />
           </a>
         </div>
@@ -201,11 +201,12 @@ function App() {
              {barber.services.map((service, index) => (
                 <button className={`flex w-full hover:bg-secondary/25 transition-colors items-center border-b-2 py-4 gap-4 ${index === 0 && 'border-t-2'}`} 
                   key={`service-${index}`} 
+                  aria-label={`Select ${service.name} service`}
                   onClick={() => {
                     setSelectedService(service.name);
                     setActiveScreen(1);
                 }}>
-                  <img src={barberLogo} className='w-16 h-16 rounded-full border-2'/>
+                  <img src={barberLogo} className='w-16 h-16 rounded-full border-2' aria-hidden/>
                   <div className='flex flex-col items-start justify-center flex-1'>
                     <div>{service.name}</div>
                     <span className='opacity-60'>{service.duration} ● ${service.price}</span>
@@ -222,6 +223,7 @@ function App() {
               <Button className='bg-transparent text-foreground hover:bg-transparent' 
                 size='icon'
                 variant='ghost'
+                aria-label='Go back to select a service'
                 onClick={() => {
                   setActiveScreen(0);
                   setSelectedService('');
@@ -235,7 +237,7 @@ function App() {
               <BookingPolicy/>
             </div>
 
-            <Progress value={33} className='max-h-[4px] min-h-[4px]'/>
+            <Progress aria-label='progress bar one' value={33} className='max-h-[4px] min-h-[4px]'/>
 
             <div className='w-full text-center py-4 my-4 bg-input/50 text-2xl font-semibold rounded-lg'>{selectedService}</div>
       
@@ -260,6 +262,7 @@ function App() {
                   <Button
                     className=''
                     variant='outline' 
+                    aria-label='Select time slot'
                     key={`time-${index}`}
                     onClick={() => {
                       setTime(hour);
@@ -289,6 +292,7 @@ function App() {
               <Button className='bg-transparent text-foreground hover:bg-transparent' 
                 size='icon'
                 variant='ghost'
+                aria-label='Go back to select time & date'
                 onClick={() => setActiveScreen(1)}
               >
                 <ChevronLeft size={32}/>
@@ -297,7 +301,7 @@ function App() {
               <BookingPolicy/>
             </div>
 
-            <Progress value={66} className='z-50 !h-1'/>
+            <Progress aria-label='progress bar one' value={66} className='z-50 !h-1'/>
 
             {/* Display selected information */}
             <div className='w-full p-4 my-4 rounded-lg bg-input/50 text-xl font-semibold flex'>
@@ -306,7 +310,7 @@ function App() {
                 <span className='text-lg text-foreground/50'>on {dateInfo.selected.month?.slice(0,3)} {dateInfo.selected.dayOfMonth}, {time}</span>
               </div>
             
-              <img src={barberLogo} width={64} height={64}/>
+              <img src={barberLogo} width={64} height={64} aria-hidden/>
             </div>
 
             {/* Form */}
@@ -327,7 +331,7 @@ function App() {
                   </CardContent>
                 </Card>
 
-                <Button disabled={loading} type='submit' className='w-full mt-4'>
+                <Button disabled={loading} type='submit' className='w-full mt-4' aria-label='Submit Form'>
                   {loading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
